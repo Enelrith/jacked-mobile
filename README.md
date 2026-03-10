@@ -1,50 +1,111 @@
-# Welcome to your Expo app 👋
+# Jacked Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile app for tracking workouts, built with Expo.
 
-## Get started
+## Tech Stack
 
-1. Install dependencies
+- **React Native** — mobile framework
+- **Expo SDK 54** — development platform
+- **TypeScript** — type safety
+- **Axios** — HTTP client
+- **Expo SecureStore** — encrypted token storage
 
-   ```bash
-   npm install
-   ```
+## Prerequisites
 
-2. Start the app
+- Node.js 18+
+- Expo Go app (for physical device testing)
+- Android Studio (for emulator)
+- [Jacked API](https://github.com/enelrith/jacked)
 
-   ```bash
-   npx expo start
-   ```
+## Local Setup
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Clone the repository
 
 ```bash
-npm run reset-project
+git clone https://github.com/yourname/jacked-mobile.git
+cd jacked-mobile
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Install dependencies
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Configure environment variables
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+cp .env.example .env.local
+```
 
-## Join the community
+```properties
+# .env.local
+EXPO_PUBLIC_BACKEND_URL=http://10.0.2.2:8080  # Android emulator
+# EXPO_PUBLIC_BACKEND_URL=http://192.168.x.x:8080  # Physical device (use your PC's IP) or localhost
+```
 
-Join our community of developers creating universal apps.
+### 4. Start the development server
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo start --clear
+```
+
+## Running the App
+
+| Command                  | Description              |
+| ------------------------ | ------------------------ |
+| `npx expo start`         | Start Metro bundler      |
+| `npx expo start --clear` | Start with cleared cache |
+| Press `a`                | Open in Android emulator |
+| Press `r`                | Reload the app           |
+
+## Project Structure
+
+```
+jacked-mobile/
+├── api/                  # API call functions
+│   ├── auth.ts           # Auth endpoints
+│   └── users.ts          # User endpoints
+├── app/                  # Expo Router screens
+│   ├── (auth)/           # Unauthenticated screens
+│   │   ├── login.tsx
+│   │   └── register.tsx
+│   │
+│   ├── index.tsx
+│   └── _layout.tsx       # Root layout
+├── assets/               # Images, fonts
+├── services/
+│   └── axios.ts  # Axios instance and interceptors
+├── types/                # TypeScript interfaces
+│   ├── auth.ts
+│   ├── error.ts
+│   └── users.ts
+└── utils/                # Helper functions
+    └── env.ts
+```
+
+## Connecting to the Backend
+
+Make sure the Jacked API is running on port `8080` before starting the app.
+
+| Device                 | Backend URL                              |
+| ---------------------- | ---------------------------------------- |
+| Android Emulator       | `http://10.0.2.2:8080`                   |
+| Physical device (WiFi) | `http://<your-pc-ip>:8080`               |
+| Physical device (USB)  | `http://10.0.2.2:8080` via `adb reverse` |
+
+For USB connections run:
+
+```bash
+adb reverse tcp:8081 tcp:8081
+adb reverse tcp:8082 tcp:8082
+```
+
+## Authentication Flow
+
+```
+Register / Login → JWT tokens saved to SecureStore
+                 → Access token attached to every request via interceptor
+                 → 401 response → auto refresh token
+                 → Refresh fails → redirect to login
+```
